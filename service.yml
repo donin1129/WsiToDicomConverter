@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+
+   wsi-to-dicom-converter:
+    image: wsi-to-dicom-converter
+    container_name: loc.wsi-to-dicom-converter
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./out:/mnt/out:rw
+      - ./samples:/mnt/samples:ro
+    command: >
+      sh -c '
+        for file in /mnt/samples/*; do
+          filename=$(basename -- "$$file")
+          filename=$${filename%.*}
+          out_folder="/mnt/out/$$filename"
+          mkdir -p "$$out_folder"
+          wsi2dcm --input "$$file" --outFolder "$$out_folder" --seriesDescription "$$filename"
+        done
+      '
